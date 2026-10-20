@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أذكار الصباح والمساء التفاعلي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Amiri for Dhikr text, Cairo for UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        amiri: ['Amiri', 'serif'],
+                    },
+                    colors: {
+                        morning: {
+                            bg: '#f0f7ff',
+                            card: '#ffffff',
+                            primary: '#0284c7',
+                            secondary: '#d97706',
+                            accent: '#e0f2fe',
+                            border: '#bae6fd'
+                        },
+                        evening: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            primary: '#38bdf8',
+                            secondary: '#fbbf24',
+                            accent: '#334155',
+                            border: '#334155'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .dhikr-text {
+            font-family: 'Amiri', serif;
+            line-height: 2.15;
+            user-select: text;
+        }
+
+        /* Subtle Islamic Geometric Pattern Overlay */
+        .islamic-pattern {
+            background-image: radial-gradient(currentColor 1px, transparent 1px),
+                              radial-gradient(currentColor 1px, transparent 1px);
+            background-size: 28px 28px;
+            background-position: 0 0, 14px 14px;
+        }
+
+        /* Ripple & Pulse animations for tapping */
+        @keyframes tapPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.96); }
+            100% { transform: scale(1); }
+        }
+
+        .tap-animate {
+            animation: tapPulse 0.18s ease-in-out;
+        }
+
+        /* Progress Ring Transition */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.25s ease-out, stroke 0.3s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(2, 132, 199, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(2, 132, 199, 0.7);
+        }
+
+        /* Printable Sheet Specific Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .print-sheet {
+                box-shadow: none !important;
+                border: 4px double #0284c7 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen transition-colors duration-500 bg-sky-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 flex flex-col">
+
+    <!-- Top Decorative Header -->
+    <header class="relative overflow-hidden transition-colors duration-500 bg-gradient-to-b from-sky-700 via-sky-600 to-sky-500 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 text-white shadow-lg no-print">
+        <!-- Pattern overlay -->
+        <div class="absolute inset-0 opacity-10 islamic-pattern pointer-events-none"></div>
+
+        <div class="max-w-5xl mx-auto px-4 pt-5 pb-6 relative z-10">
+            <!-- Top Bar: Bismillah & Quick Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-white/15 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center text-amber-300 shadow-inner">
+                        <i id="headerModeIcon" class="fa-solid fa-sun text-lg"></i>
+                    </span>
+                    <div>
+                        <span class="text-xs text-sky-100 dark:text-slate-300 block">حصن المسلم اليومي</span>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-wide">أذكار الصباح والمساء</h1>
+                    </div>
+                </div>
+
+                <!-- Bismillah Calligraphy Style Text -->
+                <div class="hidden md:block font-amiri text-2xl text-amber-200 tracking-wider drop-shadow">
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                </div>
+
+                <!-- Utility Buttons (Sound, Font Size, Reset) -->
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <button id="soundToggleBtn" onclick="toggleSound()" title="تفعيل/كتم الصوت"
+                        class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition flex items-center justify-center text-white">
+                        <i id="soundIcon" class="fa-solid fa-volume-high text-sm"></i>
+                    </button>
+
+                    <div class="flex items-center bg-white/10 rounded-xl p-0.5">
+                        <button onclick="changeFontSize(1)" title="تكبير الخط"
+                            class="px-2.5 py-1.5 rounded-lg hover:bg-white/20 active:scale-95 transition text-xs font-bold">
+                            A+
+                        </button>
+                        <span class="text-white/30 text-xs">|</span>
+                        <button onclick="changeFontSize(-1)" title="تصغير الخط"
+                            class="px-2.5 py-1.5 rounded-lg hover:bg-white/20 active:scale-95 transition text-xs font-bold">
+                            A-
+                        </button>
+                    </div>
+
+                    <button onclick="openResetModal()" title="إعادة ضبط العدادات"
+                        class="px-3 py-2 rounded-xl bg-white/10 hover:bg-rose-500/80 active:scale-95 transition flex items-center gap-1.5 text-xs font-semibold">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span class="hidden sm:inline">تصفير</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Bismillah -->
+            <div class="md:hidden text-center font-amiri text-xl text-amber-200 mb-3 drop-shadow">
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </div>
+
+            <!-- Main Controls Grid: Time Mode (Morning/Evening) & View Mode -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                <!-- Morning / Evening Switcher -->
+                <div class="md:col-span-6 bg-black/20 backdrop-blur-md p-1.5 rounded-2xl flex items-center gap-1.5 border border-white/10">
+                    <button id="btnMorning" onclick="setPeriodMode('morning')"
+                        class="flex-1 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-md bg-white text-sky-800">
+                        <i class="fa-solid fa-sun text-amber-500"></i>
+                        <span>أذكار الصباح</span>
+                    </button>
+                    <button id="btnEvening" onclick="setPeriodMode('evening')"
+                        class="flex-1 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 text-white/85 hover:bg-white/10">
+                        <i class="fa-solid fa-moon text-amber-300"></i>
+                        <span>أذكار المساء</span>
+                    </button>
+                </div>
+
+                <!-- View Style Switcher (List / Focus Card / Original Sheet) -->
+                <div class="md:col-span-6 bg-black/20 backdrop-blur-md p-1.5 rounded-2xl flex items-center gap-1 border border-white/10">
+                    <button id="viewBtnList" onclick="setViewMode('list')"
+                        class="flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 bg-white text-sky-800 shadow">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>القائمة التفاعلية</span>
+                    </button>
+                    <button id="viewBtnFocus" onclick="setViewMode('focus')"
+                        class="flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 text-white/85 hover:bg-white/10">
+                        <i class="fa-solid fa-clone"></i>
+                        <span>البطاقات المتتالية</span>
+                    </button>
+                    <button id="viewBtnSheet" onclick="setViewMode('sheet')"
+                        class="flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 text-white/85 hover:bg-white/10">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span>ورقة البطاقة</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky Progress Bar & Text Adaptation Bar -->
+    <div class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-sky-100 dark:border-slate-800 shadow-sm no-print">
+        <div class="max-w-5xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Progress Info -->
+            <div class="flex items-center gap-3 flex-1 min-w-[220px]">
+                <div class="flex items-center gap-2">
+                    <span id="completedBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-100 dark:bg-slate-800 text-sky-700 dark:text-sky-300">
+                        0 / 15
+                    </span>
+                    <span class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                        إنجاز الأذكار
+                    </span>
+                </div>
+                <div class="flex-1 h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div id="overallProgressBar" class="h-full bg-gradient-to-l from-emerald-500 to-sky-500 transition-all duration-300 rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="overallPercentText" class="text-xs font-bold text-sky-700 dark:text-sky-400 w-9 text-left">0%</span>
+            </div>
+
+            <!-- Phrasing Toggle (Dynamic vs Combined Sheet phrasing) -->
+            <div class="flex items-center gap-2 text-xs">
+                <label class="inline-flex items-center gap-2 cursor-pointer select-none text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <input type="checkbox" id="showCombinedToggle" onchange="toggleCombinedPhrasing()" class="rounded text-sky-600 focus:ring-0 w-3.5 h-3.5">
+                    <span>عرض صيغتي (الصباح والمساء) معاً كما بالورقة</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
+
+        <!-- Completion Celebration Banner (Hidden until 15/15 completed) -->
+        <div id="completionBanner" class="hidden mb-6 p-5 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 text-white shadow-xl relative overflow-hidden no-print">
+            <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-center sm:text-right">
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl text-amber-300 shrink-0">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold mb-1">تقبّل الله منك صالح الأعمال!</h2>
+                        <p id="completionMessage" class="text-sm text-emerald-50">
+                            لقد أتممت قراءة أذكار الصباح كاملة، جعلها الله حصناً ونوراً لك في يومك.
+                        </p>
+                    </div>
+                </div>
+                <button onclick="resetAllCounters()" class="px-4 py-2.5 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 active:scale-95 transition shrink-0 shadow">
+                    بدء جلسة جديدة
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 1: Interactive List View -->
+        <section id="listViewSection" class="space-y-4">
+            <!-- Rendered dynamically via JS -->
+        </section>
+
+        <!-- VIEW 2: Focused Single Card (Tasbih Carousel) View -->
+        <section id="focusViewSection" class="hidden">
+            <!-- Rendered dynamically via JS -->
+        </section>
+
+        <!-- VIEW 3: Original Printable Sheet View (Replica of the attached image) -->
+        <section id="sheetViewSection" class="hidden">
+            <!-- Rendered dynamically via JS -->
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-sky-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm py-5 px-4 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 no-print">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-300">
+                <i class="fa-solid fa-share-nodes text-sky-600 dark:text-sky-400"></i>
+                <span>«الدال على الخير كفاعله» — احرص على قراءة ونشر هذه الأذكار</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="setViewMode('sheet'); setTimeout(() => window.print(), 300);" class="px-3 py-1.5 rounded-xl bg-sky-100 dark:bg-slate-800 text-sky-700 dark:text-sky-300 hover:bg-sky-200 font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>طباعة الورقة</span>
+                </button>
+                <button onclick="copyAllAdhkar()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>نسخ جميع الأذكار</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="resetModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 no-print">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl max-w-sm w-full p-6 shadow-2xl transform transition-all text-center">
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-rotate-right"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">إعادة ضبط العدادات؟</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                سيتم تصفير عدادات الأذكار للوضع الحالي للبدء من جديد.
+            </p>
+            <div class="flex items-center gap-3">
+                <button onclick="confirmResetCounters()" class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm transition">
+                    نعم، تصفير العداد
+                </button>
+                <button onclick="closeResetModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-5 left-5 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-3 no-print">
+        <div class="bg-slate-900 dark:bg-sky-600 text-white px-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 text-xs sm:text-sm font-semibold">
+            <i class="fa-solid fa-circle-check text-emerald-400 dark:text-white"></i>
+            <span id="toastMessage">تم النسخ بنجاح</span>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script>
+        /**
+         * Complete dataset of the 15 Adhkar from the attached Albetaqa sheet.
+         * Includes morning phrasing, evening phrasing, original combined sheet phrasing,
+         * color coding from the sheet, target repetition count, and brief notes.
+         */
+        const ADHKAR_DATA = [
+            {
+                id: 1,
+                title: "الفطرة وكلمة الإخلاص",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-red-900 dark:text-amber-200",
+                morningHtml: `أَصْبَحْنَا عَلَى فِطْرَةِ الإِسْلامِ، وَكَلِمَةِ الإِخْلاصِ، وَدِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ، وَمِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفاً مُسْلِماً وَمَا كَانَ مِنَ الْمُشْرِكِينَ.`,
+                eveningHtml: `أَمْسَيْنَا عَلَى فِطْرَةِ الإِسْلامِ، وَكَلِمَةِ الإِخْلاصِ، وَدِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ، وَمِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفاً مُسْلِماً وَمَا كَانَ مِنَ الْمُشْرِكِينَ.`,
+                combinedHtml: `أصبحنا <span class="text-sky-600 dark:text-sky-400 font-bold">(أمسينا)</span> على فطرة الاسلام وكلمة الاخلاص ودين نبينا محمد صلى الله عليه وسلم وملة ابراهيم حنيفا مسلما وما كان من المشركين .`,
+                virtue: "تجديد العهد مع الله على التوحيد والإخلاص واتباع السنة في مطلع كل صباح ومساء."
+            },
+            {
+                id: 2,
+                title: "الاستعاذة من شر النفس والشيطان",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-blue-950 dark:text-sky-200",
+                morningHtml: `اللَّهُمَّ فَاطِرَ السَّمَوَاتِ وَالأَرْضِ، عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لا إِلَهَ إِلا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَشَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءاً أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ.`,
+                eveningHtml: `اللَّهُمَّ فَاطِرَ السَّمَوَاتِ وَالأَرْضِ، عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لا إِلَهَ إِلا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَشَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءاً أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ.`,
+                combinedHtml: `اللهم فاطر السموات والارض عالم الغيب والشهادة ، رب كل شيء ومليكه اشهد أن لا إله إلا انت أعوذ بك من شر نفسي وشر الشيطان وشركه وأن أقترف على نفسي سوءا او أجره الى مسلم .`,
+                virtue: "حرز عظيم علمه النبي ﷺ لأبي بكر الصديق رضي الله عنه ليقوله إذا أصبح وإذا أمسى."
+            },
+            {
+                id: 3,
+                title: "سيد الاستغفار",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-emerald-900 dark:text-emerald-300",
+                morningHtml: `اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلا أَنْتَ.`,
+                eveningHtml: `اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلا أَنْتَ.`,
+                combinedHtml: `اللهم أنت ربي لا إله الا انت خلقتني وأنا عبدك وأنا على عهدك ووعدك ما استطعت أعوذ بك من شر ما صنعت أبوء لك بنعمتك علي وأبوء بذنبي فاغفر لي فإنه لا يغفر الذنوب إلا أنت .`,
+                virtue: "من قالها من النهار موقناً بها فمات من يومه قبل أن يمسي فهو من أهل الجنة، ومن قالها من الليل وهو موقن بها فمات قبل أن يصبح فهو من أهل الجنة."
+            },
+            {
+                id: 4,
+                title: "إشهاد الله وملائكته على التوحيد",
+                count: 4,
+                countLabel: "أربع مرات",
+                sheetColor: "text-red-950 dark:text-rose-200",
+                morningHtml: `اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللهُ لا إِلَهَ إِلا أَنْتَ، وَأَنَّ مُحَمَّداً عَبْدُكَ وَرَسُولُكَ.`,
+                eveningHtml: `اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللهُ لا إِلَهَ إِلا أَنْتَ، وَأَنَّ مُحَمَّداً عَبْدُكَ وَرَسُولُكَ.`,
+                combinedHtml: `اللهم اني أصبحت <span class="text-sky-600 dark:text-sky-400 font-bold">(أمسيت)</span> اشهدك وأشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لا اله إلا أنت وأن محمدا عبدك ورسولك . (اربع مرات)`,
+                virtue: "من قالها أربع مرات حين يصبح أو يمسي أعتقه الله من النار."
+            },
+            {
+                id: 5,
+                title: "الرضا بالله رباً وبالإسلام ديناً",
+                count: 3,
+                countLabel: "ثلاث مرات (أو مرة)",
+                sheetColor: "text-blue-950 dark:text-sky-200",
+                morningHtml: `رَضِيتُ بِاللهِ رَبّاً، وَبِالإِسْلامِ دِيناً، وَبِمُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ نَبِيّاً.`,
+                eveningHtml: `رَضِيتُ بِاللهِ رَبّاً، وَبِالإِسْلامِ دِيناً، وَبِمُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ نَبِيّاً.`,
+                combinedHtml: `رضيت بالله ربا وبالاسلام دينا وبمحمد صلى الله عليه وسلم نبيا .`,
+                virtue: "من قالها حين يصبح وحين يمسي كان حقاً على الله أن يرضيه يوم القيامة."
+            },
+            {
+                id: 6,
+                title: "التهليل عشر مرات",
+                count: 10,
+                countLabel: "10 مرات",
+                sheetColor: "text-emerald-900 dark:text-emerald-300",
+                morningHtml: `لا إِلَهَ إِلا اللهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.`,
+                eveningHtml: `لا إِلَهَ إِلا اللهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.`,
+                combinedHtml: `لا إله إلا الله وحده لا شريك له له الملك وله الحمد يحيي ويميت وهو على كل شيء قدير . (10 مرات)`,
+                virtue: "كتب الله له بهن عشر حسنات، ومحا عنه عشر سيئات، ورفعه لهن عشر درجات، وكن له حرزاً من الشيطان."
+            },
+            {
+                id: 7,
+                title: "التحصن باسم الله من كل ضرر",
+                count: 3,
+                countLabel: "ثلاث مرات",
+                sheetColor: "text-slate-900 dark:text-slate-100",
+                morningHtml: `بِسْمِ اللهِ الَّذِي لا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الأَرْضِ وَلا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ.`,
+                eveningHtml: `بِسْمِ اللهِ الَّذِي لا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الأَرْضِ وَلا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ.`,
+                combinedHtml: `بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم . (ثلاث مرات)`,
+                virtue: "من قالها ثلاث مرات لم تصبه فجأة بلاء ولم يضره شيء في يومه أو ليلته."
+            },
+            {
+                id: 8,
+                title: "آية الكرسي (سورة البقرة: 255)",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-red-950 dark:text-amber-200",
+                morningHtml: `أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ: ﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾.`,
+                eveningHtml: `أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ: ﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾.`,
+                combinedHtml: `آية الكرسي وهي قول الله تعالى ( الله لا اله الا هو الحي القيوم ...) سورة البقرة 255`,
+                virtue: "من قالها حين يصبح أجير من الجن حتى يمسي، ومن قالها حين يمسي أجير من الجن حتى يصبح."
+            },
+            {
+                id: 9,
+                title: "الاستغاثة برحمة الحي القيوم",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-blue-950 dark:text-sky-200",
+                morningHtml: `يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ.`,
+                eveningHtml: `يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ.`,
+                combinedHtml: `يا حي يا قيوم برحمتك أستغيث أصلح لي شأني كله ولا تكلني الى نفسي طرفة عين .`,
+                virtue: "وصية النبي ﷺ لفاطمة رضي الله عنها أن تقولها إذا أصبحت وإذا أمست."
+            },
+            {
+                id: 10,
+                title: "تفويض الأمر لله في الإصباح والإمساء",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-emerald-900 dark:text-emerald-300",
+                morningHtml: `اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ.`,
+                eveningHtml: `اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ.`,
+                combinedHtml: `اللهم بك أصبحنا وبك أمسينا وبك نحيا وبك نموت واليك النشور <span class="text-sky-600 dark:text-sky-400 font-bold">(اللهم بك أمسينا وبك أصبحنا وبك نحيا وبك نموت واليك المصير)</span>`,
+                virtue: "إقرار بتقلب الأحوال والأوقات بيد الله وحده، وتذكر البعث والمصير إليه سبحانه."
+            },
+            {
+                id: 11,
+                title: "دعاء العفو والعافية والحفظ من الجهات الست",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-slate-900 dark:text-slate-100",
+                morningHtml: `اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي.`,
+                eveningHtml: `اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي.`,
+                combinedHtml: `اللهم إني أسألك العفو والعافية في الدنيا والآخرة اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي اللهم استر عوراتي وآمن روعاتي اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي وأعوذ بعظمتك أن أغتال من تحتي .`,
+                virtue: "لم يكن رسول الله ﷺ يدع هؤلاء الدعوات حين يمسي وحين يصبح."
+            },
+            {
+                id: 12,
+                title: "سؤال خير اليوم أو الليلة والاستعاذة من شرها",
+                count: 1,
+                countLabel: "مرة واحدة",
+                sheetColor: "text-red-950 dark:text-rose-200",
+                morningHtml: `أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لا إِلَهَ إِلا اللهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ.`,
+                eveningHtml: `أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لا إِلَهَ إِلا اللهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ.`,
+                combinedHtml: `أصبحنا وأصبح <span class="text-sky-600 dark:text-sky-400 font-bold">(أمسينا وأمسى)</span> الملك لله والحمد لله ولا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير، رب أسألك خير ما في هذا اليوم <span class="text-sky-600 dark:text-sky-400 font-bold">(هذه الليلة)</span> وخير ما بعده <span class="text-sky-600 dark:text-sky-400 font-bold">(بعدها)</span> وأعوذ بك من شر هذا اليوم <span class="text-sky-600 dark:text-sky-400 font-bold">(هذه الليلة)</span> وشر ما بعده <span class="text-sky-600 dark:text-sky-400 font-bold">(بعدها)</span> رب أعوذ بك من الكسل وسوء الكبر رب أعوذ بك من عذاب في النار وعذاب في القبر .`,
+                virtue: "دعاء جامع للتوحيد وسؤال خيري الدنيا والآخرة والاستعاذة من العجز وعذاب القبر والنار."
+            },
+            {
+                id: 13,
+                title: "سورة الإخلاص والمعوذتين (الفلق والناس)",
+                count: 3,
+                countLabel: "ثلاث مرات",
+                sheetColor: "text-slate-900 dark:text-slate-100",
+                morningHtml: `
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-100 dark:border-slate-700">
+                            <span class="text-xs font-cairo font-bold text-sky-700 dark:text-sky-400 block mb-1">سورة الإخلاص:</span>
+                            ﴿قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾
+                        </div>
+                        <div class="p-3 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-100 dark:border-slate-700">
+                            <span class="text-xs font-cairo font-bold text-sky-700 dark:text-sky-400 block mb-1">سورة الفلق:</span>
+                            ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾
+                        </div>
+                        <div class="p-3 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-100 dark:border-slate-700">
+                            <span class="text-xs font-cairo font-bold text-sky-700 dark:text-sky-400 block mb-1">سورة الناس:</span>
+                            ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ﴾
+                        </div>
+                    </div>`,
+                eveningHtml: `
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-100 dark:border-slate-700">
+                            <span class="text-xs font-cairo font-bold text-sky-700 dark:text-sky-400 block mb-1">سورة الإخلاص:</span>
+                            ﴿قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾
+                        </div>
+                        <div class="p-3 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-100 dark:border-slate-700">
+                            <span class="text-xs font-cairo font-bold text-sky-700 dark:text-sky-400 block mb-1">سورة الفلق:</span>
+                            ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾
+                        </div>
+                        <div class="p-3 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-100 dark:border-slate-700">
+                            <span class="text-xs font-cairo font-bold text-sky-700 dark:text-sky-400 block mb-1">سورة الناس:</span>
+                            ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ﴾
+                        </div>
+                    </div>`,
+                combinedHtml: `(قل هو الله احد ..) (قل اعوذ برب الفلق....) (قل اعوذ برب الناس..........) (ثلاث مرات)`,
+                virtue: "قال ﷺ: «قل هو الله أحد والمعوذتين حين تمسي وحين تصبح ثلاث مرات تكفيك من كل شيء»."
+            },
+            {
+                id: 14,
+                title: "التهليل مائة مرة",
+                count: 100,
+                countLabel: "100 مرة",
+                sheetColor: "text-emerald-900 dark:text-emerald-300",
+                morningHtml: `لا إِلَهَ إِلا اللهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.`,
+                eveningHtml: `لا إِلَهَ إِلا اللهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.`,
+                combinedHtml: `لا اله الا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير (100 مرة)`,
+                virtue: "كانت له عدل عشر رقاب، وكتبت له مائة حسنة، ومحيت عنه مائة سيئة، وكانت له حرزاً من الشيطان."
+            },
+            {
+                id: 15,
+                title: "التسبيح والتحميد والتكبير",
+                count: 100,
+                countLabel: "100 مرة",
+                sheetColor: "text-slate-900 dark:text-slate-100",
+                morningHtml: `سُبْحَانَ اللهِ، الْحَمْدُ لِلَّهِ، اللهُ أَكْبَرُ.`,
+                eveningHtml: `سُبْحَانَ اللهِ، الْحَمْدُ لِلَّهِ، اللهُ أَكْبَرُ.`,
+                combinedHtml: `سبحان الله ، الحمد لله ، الله أكبر (100 مرة)`,
+                virtue: "أحب الكلام إلى الله، وتملأ ميزان العبد بالحسنات."
+            }
+        ];
+
+        // Application State
+        let state = {
+            period: 'morning',      // 'morning' | 'evening'
+            viewMode: 'list',       // 'list' | 'focus' | 'sheet'
+            focusIndex: 0,          // Current active card index in 'focus' view
+            showCombined: false,    // Whether to show combined parentheses text like the paper
+            fontSizeStep: 0,        // -1, 0, 1, 2, 3
+            soundEnabled: true,     // Subtle click/complete audio feedback
+            counts: {
+                morning: {},
+                evening: {}
+            }
+        };
+
+        const FONT_SIZE_CLASSES = [
+            'text-lg sm:text-xl',
+            'text-xl sm:text-2xl',
+            'text-2xl sm:text-3xl',
+            'text-3xl sm:text-4xl'
+        ];
+
+        // Web Audio Context for subtle feedback sounds
+        let audioCtx = null;
+
+        function playFeedbackSound(type = 'tap') {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                if (type === 'tap') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(640, now + 0.045);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'complete') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.setValueAtTime(880, now + 0.09); // A5
+                    gain.gain.setValueAtTime(0.11, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                    osc.start(now);
+                    osc.stop(now + 0.29);
+                }
+            } catch (e) {
+                // Ignore audio errors on restricted devices
+            }
+        }
+
+        // Load saved state from localStorage
+        function loadState() {
+            try {
+                const saved = localStorage.getItem('adhkar_app_state_v1');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state.period = parsed.period || 'morning';
+                    state.showCombined = !!parsed.showCombined;
+                    state.fontSizeStep = typeof parsed.fontSizeStep === 'number' ? parsed.fontSizeStep : 1;
+                    state.soundEnabled = parsed.soundEnabled !== undefined ? parsed.soundEnabled : true;
+                    if (parsed.counts) {
+                        state.counts.morning = parsed.counts.morning || {};
+                        state.counts.evening = parsed.counts.evening || {};
+                    }
+                } else {
+                    // Auto-detect morning vs evening based on current hour on first visit
+                    const hour = new Date().getHours();
+                    state.period = (hour >= 15 || hour < 3) ? 'evening' : 'morning';
+                    state.fontSizeStep = 1;
+                }
+            } catch (e) {
+                state.fontSizeStep = 1;
+            }
+
+            // Initialize missing counts to 0
+            ADHKAR_DATA.forEach(item => {
+                if (typeof state.counts.morning[item.id] !== 'number') state.counts.morning[item.id] = 0;
+                if (typeof state.counts.evening[item.id] !== 'number') state.counts.evening[item.id] = 0;
+            });
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('adhkar_app_state_v1', JSON.stringify({
+                    period: state.period,
+                    showCombined: state.showCombined,
+                    fontSizeStep: state.fontSizeStep,
+                    soundEnabled: state.soundEnabled,
+                    counts: state.counts
+                }));
+            } catch (e) {
+                // Ignore storage quota errors
+            }
+        }
+
+        // Get current count for a Dhikr ID
+        function getCount(id) {
+            return state.counts[state.period][id] || 0;
+        }
+
+        // Get display HTML for a Dhikr based on current mode
+        function getDhikrDisplayHtml(item) {
+            if (state.showCombined) {
+                return item.combinedHtml;
+            }
+            return state.period === 'morning' ? item.morningHtml : item.eveningHtml;
+        }
+
+        // Increment counter for a Dhikr
+        function incrementDhikr(id, step = 1) {
+            const item = ADHKAR_DATA.find(d => d.id === id);
+            if (!item) return;
+
+            const current = getCount(id);
+            if (current >= item.count) {
+                return; // Already completed
+            }
+
+            const next = Math.min(item.count, current + step);
+            state.counts[state.period][id] = next;
+            saveState();
+
+            // Trigger haptic vibration if supported
+            if (navigator.vibrate) {
+                navigator.vibrate(next === item.count ? [30, 50, 40] : 15);
+            }
+
+            // Play sound
+            if (next === item.count) {
+                playFeedbackSound('complete');
+            } else {
+                playFeedbackSound('tap');
+            }
+
+            // Animate button
+            const cardEl = document.getElementById(`dhikr-card-${id}`);
+            if (cardEl) {
+                cardEl.classList.remove('tap-animate');
+                void cardEl.offsetWidth;
+                cardEl.classList.add('tap-animate');
+            }
+
+            renderAll();
+
+            // If in Focus Carousel view and this Dhikr just completed, auto-advance after brief delay
+            if (state.viewMode === 'focus' && next === item.count) {
+                setTimeout(() => {
+                    const nextIncompleteIdx = ADHKAR_DATA.findIndex((d, idx) => idx > state.focusIndex && getCount(d.id) < d.count);
+                    if (nextIncompleteIdx !== -1) {
+                        state.focusIndex = nextIncompleteIdx;
+                        renderFocusView();
+                    }
+                }, 480);
+            }
+        }
+
+        // Reset a single Dhikr counter
+        function resetSingleDhikr(id, event) {
+            if (event) event.stopPropagation();
+            state.counts[state.period][id] = 0;
+            saveState();
+            renderAll();
+        }
+
+        // Switch between Morning and Evening
+        function setPeriodMode(period) {
+            state.period = period;
+            // Apply dark theme class for Evening mode
+            if (period === 'evening') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Update header icon & buttons
+            const headerIcon = document.getElementById('headerModeIcon');
+            const btnMorning = document.getElementById('btnMorning');
+            const btnEvening = document.getElementById('btnEvening');
+
+            if (period === 'morning') {
+                headerIcon.className = 'fa-solid fa-sun text-lg text-amber-300';
+                btnMorning.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-md bg-white text-sky-800';
+                btnEvening.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 text-white/85 hover:bg-white/10';
+            } else {
+                headerIcon.className = 'fa-solid fa-moon text-lg text-amber-300';
+                btnEvening.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-md bg-indigo-500 text-white';
+                btnMorning.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 text-white/85 hover:bg-white/10';
+            }
+
+            saveState();
+            renderAll();
+        }
+
+        // Switch between List, Focus, and Original Sheet views
+        function setViewMode(mode) {
+            state.viewMode = mode;
+
+            const listSec = document.getElementById('listViewSection');
+            const focusSec = document.getElementById('focusViewSection');
+            const sheetSec = document.getElementById('sheetViewSection');
+
+            listSec.classList.toggle('hidden', mode !== 'list');
+            focusSec.classList.toggle('hidden', mode !== 'focus');
+            sheetSec.classList.toggle('hidden', mode !== 'sheet');
+
+            const activeClass = 'flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 bg-white text-sky-800 shadow';
+            const inactiveClass = 'flex-1 py-2.5 px-2 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 text-white/85 hover:bg-white/10';
+
+            document.getElementById('viewBtnList').className = mode === 'list' ? activeClass : inactiveClass;
+            document.getElementById('viewBtnFocus').className = mode === 'focus' ? activeClass : inactiveClass;
+            document.getElementById('viewBtnSheet').className = mode === 'sheet' ? activeClass : inactiveClass;
+
+            renderAll();
+        }
+
+        // Toggle combined phrasing checkbox
+        function toggleCombinedPhrasing() {
+            const checkbox = document.getElementById('showCombinedToggle');
+            state.showCombined = checkbox.checked;
+            saveState();
+            renderAll();
+        }
+
+        // Font size adjustment
+        function changeFontSize(delta) {
+            state.fontSizeStep = Math.max(0, Math.min(FONT_SIZE_CLASSES.length - 1, state.fontSizeStep + delta));
+            saveState();
+            renderAll();
+        }
+
+        // Sound toggle
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            updateSoundUI();
+            saveState();
+            showToast(state.soundEnabled ? 'تم تفعيل الصوت التفاعلي' : 'تم كتم الصوت');
+        }
+
+        function updateSoundUI() {
+            const icon = document.getElementById('soundIcon');
+            if (icon) {
+                icon.className = state.soundEnabled ? 'fa-solid fa-volume-high text-sm' : 'fa-solid fa-volume-xmark text-sm text-rose-300';
+            }
+        }
+
+        // Copy helper using document.execCommand('copy')
+        function copyTextToClipboard(text, message = 'تم نسخ الذكر بنجاح') {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = text.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                showToast(message);
+            } catch (err) {
+                showToast('تعذر النسخ التلقائي');
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        function copySingleDhikr(id, event) {
+            if (event) event.stopPropagation();
+            const item = ADHKAR_DATA.find(d => d.id === id);
+            if (!item) return;
+            const rawHtml = getDhikrDisplayHtml(item);
+            copyTextToClipboard(`${rawHtml} (${item.countLabel})`, 'تم نسخ الذكر إلى الحافظة');
+        }
+
+        function copyAllAdhkar() {
+            const title = state.period === 'morning' ? '☀️ أذكار الصباح ☀️' : '🌙 أذكار المساء 🌙';
+            const lines = ADHKAR_DATA.map((item, idx) => {
+                const cleanText = getDhikrDisplayHtml(item).replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+                return `${idx + 1}- ${cleanText} (${item.countLabel})`;
+            });
+            copyTextToClipboard(`${title}\n\n${lines.join('\n\n')}`, 'تم نسخ جميع الأذكار إلى الحافظة');
+        }
+
+        // Show Toast message
+        let toastTimer = null;
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const textEl = document.getElementById('toastMessage');
+            textEl.textContent = msg;
+            container.classList.remove('opacity-0', 'translate-y-3');
+            container.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                container.classList.remove('opacity-100', 'translate-y-0');
+                container.classList.add('opacity-0', 'translate-y-3');
+            }, 2400);
+        }
+
+        // Reset Modal handlers
+        function openResetModal() {
+            const modal = document.getElementById('resetModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeResetModal() {
+            const modal = document.getElementById('resetModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmResetCounters() {
+            resetAllCounters();
+            closeResetModal();
+            showToast('تم تصفير العدادات بنجاح');
+        }
+
+        function resetAllCounters() {
+            ADHKAR_DATA.forEach(item => {
+                state.counts[state.period][item.id] = 0;
+            });
+            state.focusIndex = 0;
+            saveState();
+            renderAll();
+        }
+
+        // Update Top Progress Bar & Completion Banner
+        function updateOverallProgress() {
+            let completedCount = 0;
+            ADHKAR_DATA.forEach(item => {
+                if (getCount(item.id) >= item.count) {
+                    completedCount++;
+                }
+            });
+
+            const total = ADHKAR_DATA.length;
+            const percent = Math.round((completedCount / total) * 100);
+
+            document.getElementById('completedBadge').textContent = `${completedCount} / ${total}`;
+            document.getElementById('overallProgressBar').style.width = `${percent}%`;
+            document.getElementById('overallPercentText').textContent = `${percent}%`;
+
+            const banner = document.getElementById('completionBanner');
+            const msg = document.getElementById('completionMessage');
+            if (completedCount === total) {
+                banner.classList.remove('hidden');
+                msg.textContent = state.period === 'morning'
+                    ? 'لقد أتممت قراءة أذكار الصباح كاملة، جعلها الله حصناً ونوراً وبركة لك في يومك.'
+                    : 'لقد أتممت قراءة أذكار المساء كاملة، حفظك الله بحفظه التام في ليلتك.';
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        // Render View 1: Interactive List View
+        function renderListView() {
+            const container = document.getElementById('listViewSection');
+            const fontSizeClass = FONT_SIZE_CLASSES[state.fontSizeStep] || FONT_SIZE_CLASSES[1];
+
+            container.innerHTML = ADHKAR_DATA.map((item, idx) => {
+                const current = getCount(item.id);
+                const isDone = current >= item.count;
+                const remaining = Math.max(0, item.count - current);
+                const progressPercent = Math.min(100, Math.round((current / item.count) * 100));
+
+                // SVG circle calculation
+                const radius = 26;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (progressPercent / 100) * circumference;
+
+                return `
+                <article id="dhikr-card-${item.id}"
+                    onclick="incrementDhikr(${item.id}, 1)"
+                    class="group relative rounded-3xl transition-all duration-300 border p-5 sm:p-6 cursor-pointer shadow-sm hover:shadow-md
+                    ${isDone
+                        ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-800/70'
+                        : 'bg-white dark:bg-slate-900 border-sky-100 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-700'}">
+
+                    <!-- Card Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl font-bold text-sm flex items-center justify-center transition-colors
+                                ${isDone
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-sky-100 dark:bg-slate-800 text-sky-700 dark:text-sky-300'}">
+                                ${isDone ? '<i class="fa-solid fa-check"></i>' : idx + 1}
+                            </span>
+                            <h3 class="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">
+                                ${item.title}
+                            </h3>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <!-- Target Badge -->
+                            <span class="px-3 py-1 rounded-full text-xs font-bold
+                                ${isDone
+                                    ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
+                                    : 'bg-amber-100/80 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}">
+                                ${item.countLabel}
+                            </span>
+
+                            <!-- Copy Button -->
+                            <button onclick="copySingleDhikr(${item.id}, event)" title="نسخ الذكر"
+                                class="p-2 rounded-xl text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                                <i class="fa-regular fa-copy text-sm"></i>
+                            </button>
+
+                            <!-- Reset Single Counter Button -->
+                            ${current > 0 ? `
+                            <button onclick="resetSingleDhikr(${item.id}, event)" title="إعادة ضبط هذا الذكر"
+                                class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
+                                <i class="fa-solid fa-rotate-left text-sm"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Main Body: Dhikr Text + Interactive Counter Button -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-5">
+                        <div class="flex-1">
+                            <div class="dhikr-text ${fontSizeClass} text-slate-800 dark:text-slate-100 leading-relaxed mb-3">
+                                ${getDhikrDisplayHtml(item)}
+                            </div>
+
+                            <!-- Virtue / Benefit Note -->
+                            <div class="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-3.5 py-2 rounded-2xl">
+                                <i class="fa-solid fa-sparkles text-amber-500 mt-0.5"></i>
+                                <span>${item.virtue}</span>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Counter Ring & Quick Actions -->
+                        <div class="flex sm:flex-col items-center justify-between sm:justify-center gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 sm:border-r border-slate-100 dark:border-slate-800 sm:pr-5 shrink-0">
+                            <div class="relative w-20 h-20 flex items-center justify-center">
+                                <svg class="w-20 h-20" viewBox="0 0 64 64">
+                                    <circle class="text-slate-200 dark:text-slate-700" stroke-width="5" stroke="currentColor" fill="transparent" r="${radius}" cx="32" cy="32"/>
+                                    <circle class="progress-ring-circle ${isDone ? 'text-emerald-500' : 'text-sky-600 dark:text-sky-400'}"
+                                        stroke-width="5"
+                                        stroke-dasharray="${circumference} ${circumference}"
+                                        stroke-dashoffset="${offset}"
+                                        stroke-linecap="round"
+                                        stroke="currentColor"
+                                        fill="transparent"
+                                        r="${radius}" cx="32" cy="32"/>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                    ${isDone ? `
+                                        <span class="text-emerald-600 dark:text-emerald-400 text-xl">
+                                            <i class="fa-solid fa-check-double"></i>
+                                        </span>
+                                        <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-300">مكتمل</span>
+                                    ` : `
+                                        <span class="text-lg font-extrabold text-sky-700 dark:text-sky-300 leading-none">${remaining}</span>
+                                        <span class="text-[10px] text-slate-400 mt-0.5">متبقي</span>
+                                    `}
+                                </div>
+                            </div>
+
+                            <!-- Quick +10 / Complete buttons for 10 or 100 repetitions -->
+                            <div class="flex sm:flex-col items-center gap-1.5">
+                                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    ${current} من ${item.count}
+                                </span>
+                                ${(!isDone && item.count >= 10) ? `
+                                <div class="flex items-center gap-1">
+                                    <button onclick="event.stopPropagation(); incrementDhikr(${item.id}, 10)"
+                                        class="px-2.5 py-1 rounded-lg bg-sky-100 dark:bg-slate-800 hover:bg-sky-200 text-sky-700 dark:text-sky-300 font-bold text-xs transition">
+                                        +10
+                                    </button>
+                                    <button onclick="event.stopPropagation(); incrementDhikr(${item.id}, ${item.count})"
+                                        class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 hover:bg-emerald-200 text-emerald-700 dark:text-emerald-300 font-bold text-xs transition">
+                                        إتمام
+                                    </button>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        // Render View 2: Focused Single Card (Tasbih Mode)
+        function renderFocusView() {
+            const container = document.getElementById('focusViewSection');
+            const item = ADHKAR_DATA[state.focusIndex] || ADHKAR_DATA[0];
+            const current = getCount(item.id);
+            const isDone = current >= item.count;
+            const remaining = Math.max(0, item.count - current);
+            const progressPercent = Math.min(100, Math.round((current / item.count) * 100));
+            const fontSizeClass = FONT_SIZE_CLASSES[state.fontSizeStep] || FONT_SIZE_CLASSES[1];
+
+            const radius = 54;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (progressPercent / 100) * circumference;
+
+            container.innerHTML = `
+            <div class="max-w-3xl mx-auto">
+                <!-- Quick Step Dots Navigation -->
+                <div class="flex items-center justify-center flex-wrap gap-1.5 mb-5">
+                    ${ADHKAR_DATA.map((d, idx) => {
+                        const done = getCount(d.id) >= d.count;
+                        const active = idx === state.focusIndex;
+                        return `
+                        <button onclick="state.focusIndex = ${idx}; renderFocusView();"
+                            class="w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center
+                            ${active ? 'ring-2 ring-offset-2 ring-sky-500 dark:ring-offset-slate-950 scale-110' : ''}
+                            ${done
+                                ? 'bg-emerald-500 text-white'
+                                : active
+                                    ? 'bg-sky-600 text-white'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}">
+                            ${idx + 1}
+                        </button>
+                        `;
+                    }).join('')}
+                </div>
+
+                <!-- Focused Card -->
+                <div id="dhikr-card-${item.id}"
+                    class="rounded-3xl bg-white dark:bg-slate-900 border-2 ${isDone ? 'border-emerald-400 dark:border-emerald-700' : 'border-sky-200 dark:border-slate-800'} shadow-xl p-6 sm:p-8 text-center relative overflow-hidden">
+
+                    <!-- Card Top Bar -->
+                    <div class="flex items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <span class="px-3.5 py-1.5 rounded-xl bg-sky-100 dark:bg-slate-800 text-sky-800 dark:text-sky-300 font-bold text-xs sm:text-sm">
+                            الذكر ${state.focusIndex + 1} من ${ADHKAR_DATA.length}
+                        </span>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-800 dark:text-white">${item.title}</h3>
+                        <span class="px-3.5 py-1.5 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-xs sm:text-sm">
+                            ${item.countLabel}
+                        </span>
+                    </div>
+
+                    <!-- Dhikr Text Area -->
+                    <div onclick="incrementDhikr(${item.id}, 1)"
+                        class="dhikr-text ${fontSizeClass} text-slate-800 dark:text-slate-100 leading-loose mb-6 cursor-pointer px-2 py-4 rounded-2xl hover:bg-sky-50/50 dark:hover:bg-slate-800/40 transition">
+                        ${getDhikrDisplayHtml(item)}
+                    </div>
+
+                    <!-- Virtue Box -->
+                    <div class="max-w-xl mx-auto mb-6 text-xs sm:text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-4 py-2.5 rounded-2xl">
+                        <i class="fa-solid fa-sparkles text-amber-500 ml-1"></i>
+                        ${item.virtue}
+                    </div>
+
+                    <!-- Large Interactive Tasbih Counter Button -->
+                    <div class="flex flex-col items-center justify-center my-4">
+                        <button onclick="incrementDhikr(${item.id}, 1)"
+                            class="relative w-36 h-36 rounded-full flex items-center justify-center bg-sky-50 dark:bg-slate-800/90 hover:scale-105 active:scale-95 transition shadow-inner group">
+                            <svg class="w-36 h-36" viewBox="0 0 128 128">
+                                <circle class="text-slate-200 dark:text-slate-700" stroke-width="8" stroke="currentColor" fill="transparent" r="${radius}" cx="64" cy="64"/>
+                                <circle class="progress-ring-circle ${isDone ? 'text-emerald-500' : 'text-sky-600 dark:text-sky-400'}"
+                                    stroke-width="8"
+                                    stroke-dasharray="${circumference} ${circumference}"
+                                    stroke-dashoffset="${offset}"
+                                    stroke-linecap="round"
+                                    stroke="currentColor"
+                                    fill="transparent"
+                                    r="${radius}" cx="64" cy="64"/>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                ${isDone ? `
+                                    <i class="fa-solid fa-check text-3xl text-emerald-500 mb-1"></i>
+                                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">تم بحمد الله</span>
+                                ` : `
+                                    <span class="text-3xl font-extrabold text-sky-700 dark:text-sky-300">${remaining}</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 mt-1">اضغط للعدّ</span>
+                                `}
+                            </div>
+                        </button>
+
+                        <!-- Quick +10 / Complete / Reset Controls -->
+                        <div class="flex items-center justify-center gap-2 mt-4">
+                            ${(!isDone && item.count >= 10) ? `
+                                <button onclick="incrementDhikr(${item.id}, 10)"
+                                    class="px-4 py-2 rounded-xl bg-sky-100 dark:bg-slate-800 text-sky-700 dark:text-sky-300 font-bold text-xs hover:bg-sky-200 transition">
+                                    +10 مرات
+                                </button>
+                                <button onclick="incrementDhikr(${item.id}, ${item.count})"
+                                    class="px-4 py-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-xs hover:bg-emerald-200 transition">
+                                    إتمام الكل (${item.count})
+                                </button>
+                            ` : ''}
+                            ${current > 0 ? `
+                                <button onclick="resetSingleDhikr(${item.id}, event)"
+                                    class="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 font-bold text-xs hover:bg-rose-100 transition">
+                                    <i class="fa-solid fa-rotate-left ml-1"></i>إعادة الذكر
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Next / Prev Navigation -->
+                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button onclick="if(state.focusIndex > 0) { state.focusIndex--; renderFocusView(); }"
+                            ${state.focusIndex === 0 ? 'disabled' : ''}
+                            class="px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition
+                            ${state.focusIndex === 0
+                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                : 'bg-slate-100 dark:bg-slate-800 hover:bg-sky-100 text-slate-700 dark:text-slate-200'}">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <span>الذكر السابق</span>
+                        </button>
+
+                        <button onclick="if(state.focusIndex < ADHKAR_DATA.length - 1) { state.focusIndex++; renderFocusView(); }"
+                            ${state.focusIndex === ADHKAR_DATA.length - 1 ? 'disabled' : ''}
+                            class="px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition
+                            ${state.focusIndex === ADHKAR_DATA.length - 1
+                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                : 'bg-sky-600 hover:bg-sky-700 text-white shadow'}">
+                            <span>الذكر التالي</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // Render View 3: Original Printable Sheet View (Matches the uploaded Albetaqa image)
+        function renderSheetView() {
+            const container = document.getElementById('sheetViewSection');
+            const fontSizeClass = FONT_SIZE_CLASSES[state.fontSizeStep] || FONT_SIZE_CLASSES[1];
+
+            container.innerHTML = `
+            <div class="print-sheet max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-8 shadow-2xl border-[10px] border-sky-400/80 dark:border-sky-800 relative">
+                <!-- Inner Frame Border -->
+                <div class="border-2 border-sky-600/60 dark:border-sky-500/40 rounded-2xl p-5 sm:p-8">
+
+                    <!-- Sheet Header -->
+                    <div class="text-center mb-6 pb-4 border-b-2 border-sky-100 dark:border-slate-800">
+                        <p class="font-amiri text-2xl sm:text-3xl text-slate-800 dark:text-amber-200 mb-2">
+                            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                        </p>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-red-900 dark:text-sky-300 tracking-wide">
+                            أذكار الصباح والمساء
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 no-print">
+                            (يمكنك النقر على أي سطر في البطاقة لتمييزه كمقروء)
+                        </p>
+                    </div>
+
+                    <!-- All 15 Lines formatted like the original sheet -->
+                    <div class="space-y-3.5 dhikr-text ${fontSizeClass} text-justify">
+                        ${ADHKAR_DATA.map((item) => {
+                            const isDone = getCount(item.id) >= item.count;
+                            return `
+                            <div onclick="incrementDhikr(${item.id}, ${item.count})"
+                                class="p-2.5 rounded-2xl transition cursor-pointer flex items-start gap-2.5
+                                ${isDone ? 'bg-emerald-50/90 dark:bg-emerald-950/30 ring-1 ring-emerald-300 dark:ring-emerald-800' : 'hover:bg-sky-50/70 dark:hover:bg-slate-800/50'}">
+                                <span class="mt-2 w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 no-print
+                                    ${isDone ? 'bg-emerald-600 text-white' : 'border border-slate-400 text-transparent'}">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </span>
+                                <p class="${item.sheetColor} leading-relaxed flex-1">
+                                    <span class="font-bold">- </span>${item.combinedHtml}
+                                </p>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <!-- Sheet Bottom Box (Matching the image footer) -->
+                    <div class="mt-8 pt-4 border-t-2 border-slate-300 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4 text-center sm:text-right font-cairo">
+                        <div class="border-2 border-slate-800 dark:border-slate-600 rounded-xl px-4 py-2 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">
+                            احرص على طباعة ونشر هذه الورقة
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold text-sm">
+                            <i class="fa-solid fa-print text-xl text-sky-700 dark:text-sky-400"></i>
+                            <span>موقع البطاقة الدعوية</span>
+                        </div>
+                        <div class="border-2 border-slate-800 dark:border-slate-600 rounded-xl px-4 py-2 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">
+                            فالدال على الخير كفاعله — ALBETAQA.SITE
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // Master Render Function
+        function renderAll() {
+            document.getElementById('showCombinedToggle').checked = state.showCombined;
+            updateSoundUI();
+            updateOverallProgress();
+
+            if (state.viewMode === 'list') {
+                renderListView();
+            } else if (state.viewMode === 'focus') {
+                renderFocusView();
+            } else if (state.viewMode === 'sheet') {
+                renderSheetView();
+            }
+        }
+
+        // Keyboard support for Focus Mode (Space or Enter increments counter, Left/Right arrows navigate)
+        window.addEventListener('keydown', (e) => {
+            if (state.viewMode !== 'focus') return;
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                const currentItem = ADHKAR_DATA[state.focusIndex];
+                if (currentItem) incrementDhikr(currentItem.id, 1);
+            } else if (e.code === 'ArrowLeft') {
+                if (state.focusIndex < ADHKAR_DATA.length - 1) {
+                    state.focusIndex++;
+                    renderFocusView();
+                }
+            } else if (e.code === 'ArrowRight') {
+                if (state.focusIndex > 0) {
+                    state.focusIndex--;
+                    renderFocusView();
+                }
+            }
+        });
+
+        // Initialize on Window Load
+        window.onload = function () {
+            loadState();
+            setPeriodMode(state.period);
+            setViewMode(state.viewMode);
+        };
+    </script>
+</body>
+</html>
